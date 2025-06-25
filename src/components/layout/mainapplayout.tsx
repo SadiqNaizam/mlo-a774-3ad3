@@ -1,5 +1,6 @@
 import React from 'react';
 import FooterNav from './footernav';
+import HeaderNav from './headernav';
 
 interface MainAppLayoutProps {
   children: React.ReactNode;
@@ -7,13 +8,14 @@ interface MainAppLayoutProps {
 
 /**
  * MainAppLayout provides the core structure for the application,
- * including the main content area and a footer.
+ * including a header, the main content area, and a footer.
  */
 const MainAppLayout: React.FC<MainAppLayoutProps> = ({ children }) => {
   return (
-    <div className="dark flex min-h-screen flex-col bg-background text-foreground">
-      {/* Header has been removed. Main content area no longer needs top padding. */}
-      <main className="flex-grow">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <HeaderNav />
+      {/* Add pt-16 to account for fixed header height */}
+      <main className="flex-grow pt-16">
         {children}
       </main>
       <FooterNav />
