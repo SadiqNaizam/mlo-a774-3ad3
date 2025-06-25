@@ -15,7 +15,7 @@ const HeaderNav: React.FC = () => {
             <GitFork className="h-5 w-5 text-primary-foreground" />
           </div>
           <h1 className="text-lg font-semibold text-foreground">
-            Pipeline Visualization Dashboard
+            Dashboard
           </h1>
         </div>
         <div className="flex items-center gap-4">
