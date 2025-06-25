@@ -79,6 +79,9 @@
 
   body {
     @apply bg-background text-foreground;
+    /* Add a subtle dot pattern for the canvas effect */
+    background-image: radial-gradient(hsl(var(--border)) 0.5px, transparent 0);
+    background-size: 8px 8px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
