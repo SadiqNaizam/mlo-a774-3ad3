@@ -41,16 +41,17 @@ const PipelineConnector: React.FC<PipelineConnectorProps> = ({
       const endX = toRect.left - parentRect.left;
       const endY = toRect.top - parentRect.top + toRect.height / 2;
 
-      const controlPointX1 = startX + Math.abs(endX - startX) * 0.5;
-      const controlPointY1 = startY;
-      const controlPointX2 = endX - Math.abs(endX - startX) * 0.5;
-      const controlPointY2 = endY;
-
       // For user request paths, make them more curved
       const curveFactor = variant === 'user-request' ? 150 : 60;
-      const c1x = startX + curveFactor;
+      
+      // Determine the direction of the connection (1 for LTR, -1 for RTL).
+      // Default to 1 if they are vertically aligned to avoid a factor of 0.
+      const direction = Math.sign(endX - startX) || 1;
+
+      // Apply the curve factor based on the direction to create a smooth arc.
+      const c1x = startX + curveFactor * direction;
       const c1y = startY;
-      const c2x = endX - curveFactor;
+      const c2x = endX - curveFactor * direction;
       const c2y = endY;
 
       setPathData(`M ${startX} ${startY} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${endX} ${endY}`);
