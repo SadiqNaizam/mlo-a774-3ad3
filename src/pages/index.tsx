@@ -1,142 +1,147 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import MainAppLayout from '@/components/layout/MainAppLayout';
-import PipelineCard, { PipelineCardProps } from '@/components/PipelineOverview/PipelineCard';
-import PipelineConnector from '@/components/PipelineOverview/PipelineConnector';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Activity, CreditCard, DollarSign, Users } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import CountUp from 'react-countup';
 
-// Type definition for a connector between pipelines
-interface ConnectorData {
-  fromId: string;
-  toId: string;
-  label?: string;
-  variant?: 'default' | 'user-request';
-}
+// --- Data Definitions ---
 
-// --- Dummy Data Definitions ---
+const chartData = [
+  { name: 'Jan', revenue: 4000 },
+  { name: 'Feb', revenue: 3000 },
+  { name: 'Mar', revenue: 5000 },
+  { name: 'Apr', revenue: 4500 },
+  { name: 'May', revenue: 6000 },
+  { name: 'Jun', revenue: 5500 },
+  { name: 'Jul', revenue: 7000 },
+];
 
-const pipelineData: readonly PipelineCardProps[] = [
-  {
-    id: 'p1',
-    title: 'Image To Code Pipeline',
-    steps: [
-      { id: 'p1s1', title: 'Analyze Screenshot', description: 'Detect layout and components from image.' },
-      { id: 'p1s2', title: 'Component Extraction', description: 'Isolate individual UI elements.', apiCall: 'vision_extract_v2' },
-      { id: 'p1s3', title: 'Generate JSX', description: 'Convert extracted data into React code.', apiCall: 'codegen_react_v4' },
-      { id: 'p1s4', title: 'Preview in Frontend', description: 'Initial render of the generated code.', hasPreview: true },
-    ],
-  },
-  {
-    id: 'p2',
-    title: 'App Generation Pipeline',
-    steps: [
-      { id: 'p2s1', title: 'Parse User Prompt', description: 'Understand requirements from text input.' },
-      { id: 'p2s2', title: 'Generate App Structure', description: 'Define file and component hierarchy.', apiCall: 'codegen_structure_v1' },
-      { id: 'p2s3', title: 'Write Component Code', description: 'Generate code for all defined components.', apiCall: 'codegen_full_v3' },
-      { id: 'p2s4', title: 'Deploy to Sandbox', description: 'Create a temporary deployment for review.' },
-    ],
-  },
-  {
-    id: 'p3',
-    title: 'Regeneration Pipeline',
-    steps: [
-      { id: 'p3s1', title: 'Parse User Request', description: 'Identify code sections to modify from feedback.' },
-      { id: 'p3s2', title: 'Regeneration Logic', description: 'Apply changes and ensure code integrity.', apiCall: 'codegen_regenerate_v2' },
-      { id: 'p3s3', title: 'Update First-Pass Code', description: 'Integrate the regenerated code snippets.' },
-    ],
-  },
-  {
-    id: 'p4',
-    title: 'Deployment Server',
-    steps: [
-      { id: 'p4s1', title: 'CI/CD Trigger', description: 'Automated build process initiated.' },
-      { id: 'p4s2', title: 'Build & Deploy', description: 'Package and push to live environment.' },
-    ],
-  },
-  {
-    id: 'p5',
-    title: 'Updated Preview in Frontend',
-    steps: [
-      { id: 'p5s1', title: 'Live Frontend Preview', description: 'The updated application is now visible to the user.', hasPreview: true },
-    ],
-  },
-] as const;
-
-const connectorData: readonly ConnectorData[] = [
-  {
-    fromId: 'p1',
-    toId: 'p3',
-    label: 'User request: fix or change',
-    variant: 'user-request',
-  },
-  {
-    fromId: 'p2',
-    toId: 'p3',
-    variant: 'user-request',
-  },
-  {
-    fromId: 'p3',
-    toId: 'p4',
-  },
-  {
-    fromId: 'p4',
-    toId: 'p5',
-  },
-  {
-    fromId: 'p5',
-    toId: 'p3',
-    label: 'Further user requests / changes',
-    variant: 'user-request',
-  },
-] as const;
-
+const recentSales = [
+  { name: 'Olivia Martin', email: 'olivia.martin@email.com', amount: 1999.00, status: 'Paid' },
+  { name: 'Jackson Lee', email: 'jackson.lee@email.com', amount: 39.00, status: 'Paid' },
+  { name: 'Isabella Nguyen', email: 'isabella.nguyen@email.com', amount: 299.00, status: 'Refunded' },
+  { name: 'William Kim', email: 'will@email.com', amount: 99.00, status: 'Paid' },
+  { name: 'Sofia Davis', email: 'sofia.davis@email.com', amount: 39.00, status: 'Pending' },
+];
 
 const IndexPage: React.FC = () => {
-  const pipelineContainerRef = useRef<HTMLDivElement>(null);
-
-  // Helper function to find a pipeline card's data by its ID
-  const findCardData = (id: string): PipelineCardProps | undefined => {
-    return pipelineData.find((p) => p.id === id);
-  };
-
-  const p1Data = findCardData('p1');
-  const p2Data = findCardData('p2');
-  const p3Data = findCardData('p3');
-  const p4Data = findCardData('p4');
-  const p5Data = findCardData('p5');
-
   return (
     <MainAppLayout>
-      <div className="container mx-auto px-4 py-8 md:px-8 lg:px-12">
-        <div ref={pipelineContainerRef} className="relative min-h-[90vh] w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-32 gap-y-16 items-start justify-center">
-            {/* Column 1: Source Pipelines */}
-            <div className="flex flex-col gap-y-32 justify-center h-full pt-16">
-              {p1Data && <PipelineCard {...p1Data} />}
-              {p2Data && <PipelineCard {...p2Data} />}
-            </div>
-
-            {/* Column 2: Regeneration Pipeline */}
-            <div className="flex items-center justify-center h-full min-h-[500px]">
-              {p3Data && <PipelineCard {...p3Data} />}
-            </div>
-
-            {/* Column 3: Deployment & Output */}
-            <div className="flex flex-col gap-y-48 justify-center h-full pt-16">
-              {p4Data && <PipelineCard {...p4Data} />}
-              {p5Data && <PipelineCard {...p5Data} />}
-            </div>
-          </div>
-
-          {/* Render all connectors on top of the grid */}
-          {connectorData.map((connector) => (
-            <PipelineConnector
-              key={`${connector.fromId}-${connector.toId}-${connector.label}`}
-              parentRef={pipelineContainerRef}
-              fromId={connector.fromId}
-              toId={connector.toId}
-              label={connector.label}
-              variant={connector.variant}
-            />
-          ))}
+      <div className="container mx-auto p-4 md:p-8">
+        <h2 className="text-3xl font-bold tracking-tight mb-6">Overview</h2>
+        
+        {/* Stat Cards */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                <CountUp prefix="$" end={45231.89} decimals={2} duration={2.5} />
+              </div>
+              <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Subscriptions</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                <CountUp end={2350} separator="," duration={2.5} />
+              </div>
+              <p className="text-xs text-muted-foreground">+180.1% from last month</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Sales</CardTitle>
+              <CreditCard className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                <CountUp end={12234} separator="," duration={2.5} />
+              </div>
+              <p className="text-xs text-muted-foreground">+19% from last month</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Now</CardTitle>
+              <Activity className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                <CountUp end={573} duration={2.5} />
+              </div>
+              <p className="text-xs text-muted-foreground">+201 since last hour</p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Chart and Recent Sales */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 mt-6">
+          <Card className="lg:col-span-4">
+            <CardHeader>
+              <CardTitle>Revenue Over Time</CardTitle>
+            </CardHeader>
+            <CardContent className="pl-2">
+              <ResponsiveContainer width="100%" height={350}>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(value) => `$${value/1000}k`} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--background))',
+                      borderColor: 'hsl(var(--border))'
+                    }}
+                  />
+                  <Legend />
+                  <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" activeDot={{ r: 8 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+          
+          <Card className="lg:col-span-3">
+            <CardHeader>
+              <CardTitle>Recent Sales</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentSales.map((sale, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <div className="font-medium">{sale.name}</div>
+                        <div className="text-sm text-muted-foreground">{sale.email}</div>
+                      </TableCell>
+                       <TableCell>
+                        <Badge variant={sale.status === 'Paid' ? 'default' : sale.status === 'Refunded' ? 'destructive' : 'secondary'}>
+                          {sale.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">${sale.amount.toFixed(2)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </MainAppLayout>
